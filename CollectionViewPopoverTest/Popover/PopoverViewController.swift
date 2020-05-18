@@ -9,6 +9,12 @@
 import UIKit
 
 class PopoverViewController: UIViewController {
+    var delegate: PopoverViewControllerDelegate?
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        delegate?.willDismissPopover()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

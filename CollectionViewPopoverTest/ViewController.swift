@@ -10,18 +10,26 @@ import UIKit
 
 class ViewController: UIViewController {
     var timer = Timer()
+    var popoverTempView = UIView()
 
     @IBOutlet weak var collectionView: UICollectionView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        timer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(reloadData), userInfo: nil, repeats: true)
+        self.setupPopoverTempView()
+        self.timer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(reloadData), userInfo: nil, repeats: true)
+    }
+
+    func setupPopoverTempView() {
+        self.collectionView.addSubview(popoverTempView)
+        self.popoverTempView.isHidden = true
+        self.popoverTempView.backgroundColor = .clear
     }
 
     @objc
     func reloadData(){
         print("reloadData")
-        collectionView.reloadData()
+        self.collectionView.reloadData()
     }
 }
 
@@ -42,16 +50,30 @@ extension ViewController: UICollectionViewDelegate {
             return
         }
 
-        presentPopover(from: self, cell: cell)
+        self.presentPopover(from: self, cell: cell)
     }
 
     func presentPopover(from view: UIViewController, cell: UIView) {
         let popoverView = PopoverViewController(nibName: "PopoverViewController", bundle: nil)
         let popover: UIPopoverPresentationController = popoverView.popoverPresentationController!
 
-        popover.sourceRect = cell.bounds
-        popover.sourceView = cell
+        popoverView.delegate = self
+
+        self.popoverTempView.frame = cell.frame
+        self.popoverTempView.isHidden = false
+        popover.sourceRect = self.popoverTempView.bounds
+        popover.sourceView = self.popoverTempView
 
         view.present(popoverView, animated: true, completion: nil)
     }
+}
+
+extension ViewController: PopoverViewControllerDelegate {
+    func willDismissPopover() {
+        self.popoverTempView.isHidden = true
+    }
+}
+
+protocol PopoverViewControllerDelegate {
+    func willDismissPopover()
 }
